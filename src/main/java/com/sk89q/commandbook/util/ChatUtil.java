@@ -49,10 +49,14 @@ public class ChatUtil {
      * @return
      */
     public static String toColoredName(CommandSender sender, ChatColor endColor) {
+        return toColoredName(sender, endColor, null);
+    }
+
+    public static String toColoredName(CommandSender sender, ChatColor endColor, CommandSender viewer) {
         if (sender instanceof Player) {
             String name = CommandBook.inst().useDisplayNames
-                    ? ((Player) sender).getDisplayName()
-                    : (sender).getName();
+                    ? ((Player) sender).getDisplayName(viewer)
+                    : (sender).getName(viewer);
             if (endColor != null && name.contains("\u00A7")) {
                 name = name + endColor;
             }
@@ -60,7 +64,7 @@ public class ChatUtil {
         } else if (sender instanceof ConsoleCommandSender) {
             return "*Console*";
         } else {
-            return sender.getName();
+            return sender.getName(viewer);
         }
     }
 

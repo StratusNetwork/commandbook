@@ -78,7 +78,7 @@ public class OnlineListComponent extends BukkitComponent implements Listener {
      * @param online
      * @param sender
      */
-    public void sendOnlineList(Collection<? extends Player> online, CommandSender sender) {
+    public void sendOnlineList(Collection<? extends Player> online, final CommandSender sender) {
 
         StringBuilder out = new StringBuilder();
         int onlineCount = online.size();
@@ -142,9 +142,9 @@ public class OnlineListComponent extends BukkitComponent implements Listener {
                     }
 
                     if (CommandBook.inst().useDisplayNames) {
-                        out.append(player.getDisplayName()).append(ChatColor.WHITE);
+                        out.append(player.getDisplayName(sender)).append(ChatColor.WHITE);
                     } else {
-                        out.append(player.getName());
+                        out.append(player.getName(sender));
                     }
 
                     first = false;
@@ -155,7 +155,15 @@ public class OnlineListComponent extends BukkitComponent implements Listener {
             // To keep track of commas
             boolean first = true;
 
-            for (Player player : online) {
+            List<Player> sorted = new ArrayList<Player>(online);
+            Collections.sort(sorted, new Comparator<Player>() {
+                @Override
+                public int compare(Player a, Player b) {
+                    return a.getName(sender).toLowerCase().compareTo(b.getName(sender).toLowerCase());
+                }
+            });
+
+            for (Player player : sorted) {
                 if (sender instanceof Player) {
                     if (!((Player) sender).canSee(player)) {
                         continue;
@@ -167,9 +175,9 @@ public class OnlineListComponent extends BukkitComponent implements Listener {
                 }
 
                 if (CommandBook.inst().useDisplayNames) {
-                    out.append(player.getDisplayName()).append(ChatColor.WHITE);
+                    out.append(player.getDisplayName(sender)).append(ChatColor.WHITE);
                 } else {
-                    out.append(player.getName());
+                    out.append(player.getName(sender));
                 }
 
                 first = false;

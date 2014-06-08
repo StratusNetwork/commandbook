@@ -31,6 +31,10 @@
       <id>bukkit-repo</id>
       <url>http://repo.bukkit.org/content/groups/public/</url>
     </repository>
+    <repository>
+      <id>overcast</id>
+      <url>https://repo.oc.tc/content/groups/public</url>
+    </repository>
   </repositories>
   <dependencies>
     <dependency>
@@ -69,17 +73,13 @@
     </dependency>
   </dependencies>
   <distributionManagement>
-    <site>
-      <id>sk89q-docs-upload</id>
-      <url>ftp://sk89q-maven-deploy/commandbook/</url>
-    </site>
     <repository>
-      <id>maven.sk89q.com</id>
-      <url>http://maven.sk89q.com/artifactory/libs-release-local</url>
+      <id>overcast-deployment</id>
+      <url>https://repo.oc.tc/content/repositories/releases</url>
     </repository>
     <snapshotRepository>
-      <id>maven.sk89q.com-snapshot</id>
-      <url>http://maven.sk89q.com/artifactory/libs-snapshot-local</url>
+      <id>overcast-deployment</id>
+      <url>https://repo.oc.tc/content/repositories/snapshots</url>
     </snapshotRepository>
   </distributionManagement>
   <build>

@@ -215,24 +215,6 @@ public class MessagingComponent extends BukkitComponent implements Listener {
             }
         }
 
-        @Command(aliases = {"msg", "message", "whisper", "pm", "tell", "w"}, usage = "<target> <message...>", desc = "Private message a user", min = 2, max = -1)
-        @CommandPermissions({"commandbook.msg"})
-        public void msg(CommandContext args, CommandSender sender) throws CommandException {
-            // This will throw errors as needed
-            messagePlayer(sender, args.getString(0), args.getJoinedStrings(1));
-        }
-
-        @Command(aliases = {"reply", "r"}, usage = "<message...>", desc = "Reply to last user", min = 1, max = -1)
-        @CommandPermissions({"commandbook.msg"})
-        public void reply(CommandContext args, CommandSender sender) throws CommandException {
-            String lastRecipient = sessions.getSession(UserSession.class, sender).getLastRecipient();
-            if (lastRecipient == null) {
-                throw new CommandException("You haven't messaged anyone.");
-            }
-
-            messagePlayer(sender, lastRecipient, args.getJoinedStrings(0));
-        }
-
         @Command(aliases = {"mute"}, usage = "<target>", desc = "Mute a player", flags = "o", min = 1, max = 1)
         @CommandPermissions({"commandbook.mute"})
         public void mute(CommandContext args, CommandSender sender) throws CommandException {

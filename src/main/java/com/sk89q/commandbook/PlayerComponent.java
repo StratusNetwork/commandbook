@@ -226,10 +226,10 @@ public class PlayerComponent extends BukkitComponent {
             }
         }
 
-        //@Command(aliases = {"slay"},
-        //		usage = "[player]", desc = "Slay a player",
-        //		flags = "s", min = 0, max = 1)
-        //@CommandPermissions({"commandbook.slay"})
+        @Command(aliases = {"slay"},
+        		usage = "[player]", desc = "Slay a player",
+        		flags = "s", min = 0, max = 1)
+        @CommandPermissions({"commandbook.slay"})
 
         public void slay(CommandContext args, CommandSender sender) throws CommandException {
 

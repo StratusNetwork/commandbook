@@ -36,6 +36,7 @@ import com.zachsthings.libcomponents.config.ConfigurationBase;
 import com.zachsthings.libcomponents.config.Setting;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -45,6 +46,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
@@ -86,7 +88,7 @@ public class ThorComponent extends BukkitComponent implements Listener {
             }
 
             if (event.getAction() == Action.LEFT_CLICK_AIR) {
-                Block block = player.getTargetBlock(null, 300);
+                Block block = player.getTargetBlock(Collections.<Material>emptySet(), 300);
                 if (block != null) {
                     player.getWorld().strikeLightning(block.getLocation());
                 }

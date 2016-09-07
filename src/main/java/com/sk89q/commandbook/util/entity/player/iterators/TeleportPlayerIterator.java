@@ -82,10 +82,10 @@ public class TeleportPlayerIterator extends PlayerIteratorAction {
 
         if (oldLoc.getWorld().equals(loc.getWorld())) {
             player.sendMessage(ChatColor.YELLOW + "You've been teleported by "
-                    + ChatUtil.toColoredName(sender, ChatColor.YELLOW) + ".");
+                    + ChatUtil.toColoredName(sender, ChatColor.YELLOW, player) + ".");
         } else {
             player.sendMessage(ChatColor.YELLOW + "You've been teleported by "
-                    + ChatUtil.toColoredName(sender, ChatColor.YELLOW) + " to world '"
+                    + ChatUtil.toColoredName(sender, ChatColor.YELLOW, player) + " to world '"
                     + loc.getWorld().getName() + "'.");
         }
     }

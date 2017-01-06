@@ -22,10 +22,12 @@ import com.sk89q.commandbook.session.PersistentSession;
 import com.sk89q.minecraft.util.commands.CommandException;
 import com.zachsthings.libcomponents.config.Setting;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -114,5 +116,16 @@ public class TeleportSession extends PersistentSession {
 
     public Location getIgnoreLocation() {
         return ignoreTeleportLocation;
+    }
+
+    public void handleWorldChange(World world) {
+        if(component.getConfig().multiworld) return;
+
+        for(Iterator<Location> iterator = locationHistory.iterator(); iterator.hasNext(); ) {
+            if(world.equals(iterator.next().getWorld())) iterator.remove();
+        }
+        if(ignoreTeleportLocation != null && world.equals(ignoreTeleportLocation.getWorld())) {
+            ignoreTeleportLocation = null;
+        }
     }
 }

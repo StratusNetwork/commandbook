@@ -45,8 +45,10 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.event.world.WorldUnloadEvent;
 
 @ComponentInformation(friendlyName = "Teleports", desc = "Teleport-related commands")
 @Depend(components = SessionComponent.class)
@@ -87,6 +89,7 @@ public class TeleportComponent extends BukkitComponent implements Listener {
                 "`yYour teleport request to %cname%`y was accepted.";
         @Setting("bring-message.no-perm") public String bringMessageNoPerm = "That person didn't request a " +
                 "teleport (recently) and you don't have permission to teleport anyone.";
+        @Setting("multiworld") public boolean multiworld;
     }
 
     // -- Event handlers
@@ -114,6 +117,19 @@ public class TeleportComponent extends BukkitComponent implements Listener {
             }
         }
         sessions.getSession(TeleportSession.class, player).rememberLocation(event.getPlayer());
+    }
+
+    @EventHandler
+    public void onWorldChange(PlayerChangedWorldEvent event) {
+        sessions.getSession(TeleportSession.class, event.getPlayer())
+                .handleWorldChange(event.getWorld());
+    }
+
+    @EventHandler
+    public void onWorldUnload(WorldUnloadEvent event) {
+        for(TeleportSession session : sessions.getSessions(TeleportSession.class).values()) {
+            session.handleWorldChange(event.getWorld());
+        }
     }
 
     public class Commands {

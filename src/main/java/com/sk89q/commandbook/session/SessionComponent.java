@@ -29,6 +29,8 @@ import com.sk89q.util.yaml.YAMLProcessor;
 import com.zachsthings.libcomponents.ComponentInformation;
 import com.zachsthings.libcomponents.bukkit.BukkitComponent;
 import com.zachsthings.libcomponents.bukkit.YAMLNodeConfigurationNode;
+import com.zachsthings.libcomponents.config.ConfigurationBase;
+import com.zachsthings.libcomponents.config.Setting;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
@@ -56,16 +58,23 @@ public class SessionComponent extends BukkitComponent implements Runnable, Liste
             sessionFactories = new ConcurrentHashMap<Class<? extends PersistentSession>, SessionFactory<?>>();
     private File sessionsDir;
     private final Map<String, Map<String, YAMLProcessor>> sessionDataStores = new HashMap<String, Map<String, YAMLProcessor>>();
+    private LocalConfiguration config;
 
     @Override
     public void enable() {
         CommandBook.server().getScheduler().scheduleSyncRepeatingTask(CommandBook.inst(), this, CHECK_FREQUENCY, CHECK_FREQUENCY);
         CommandBook.registerEvents(this);
         registerCommands(Commands.class);
+        config = configure(new LocalConfiguration());
         sessionsDir = new File(CommandBook.inst().getDataFolder(), "sessions");
         if (!sessionsDir.exists()) {
             sessionsDir.mkdirs();
         }
+    }
+
+    @Override
+    public void reload() {
+        configure(config);
     }
 
     @Override
@@ -74,13 +83,19 @@ public class SessionComponent extends BukkitComponent implements Runnable, Liste
             String type = getType(player.getClass());
             for (PersistentSession session : getSessions(player)) {
                 session.handleDisconnect();
-                session.save(new YAMLNodeConfigurationNode(getSessionConfiguration(type, UUIDUtil.toUniqueString(player), session.getClass())));
+                if(config.persistent) {
+                    session.save(new YAMLNodeConfigurationNode(getSessionConfiguration(type, UUIDUtil.toUniqueString(player), session.getClass())));
+                }
             }
             YAMLProcessor proc = getUserConfiguration(type, UUIDUtil.toUniqueString(player), false);
             if (proc != null) {
                 proc.save();
             }
         }
+    }
+
+    public static class LocalConfiguration extends ConfigurationBase {
+        @Setting("persistent") public boolean persistent = true;
     }
 
     // -- Getting sessions
@@ -165,6 +180,15 @@ public class SessionComponent extends BukkitComponent implements Runnable, Liste
         return Collections.unmodifiableCollection(ret.values());
     }
 
+    private void removeSessions(CommandSender user) {
+        synchronized(sessions) {
+            final Map<String, Map<Class<? extends PersistentSession>, PersistentSession>> ownerMap = sessions.get(user.getClass());
+            if(ownerMap != null) {
+                ownerMap.remove(UUIDUtil.toUniqueString(user));
+            }
+        }
+    }
+
     /**
      * Gets the session of type for user, creating a new instance if none currently exists
      *
@@ -243,6 +267,8 @@ public class SessionComponent extends BukkitComponent implements Runnable, Liste
 
     // Persistence-related methods
     private YAMLProcessor getUserConfiguration(String type, String commander, boolean create) {
+        if(!config.persistent) return null;
+
         Map<String, YAMLProcessor> typeMap = getDataStore(type);
         YAMLProcessor processor = typeMap.get(commander);
         if (processor == null) {
@@ -355,7 +381,7 @@ public class SessionComponent extends BukkitComponent implements Runnable, Liste
                             continue outer;
                         }
 
-                        if (!sess.isRecent()) {
+                        if (!(sess.isRecent() && config.persistent)) {
                             i2.remove();
                             String sender = sess.getUniqueName();
                             if (sender != null) {
@@ -382,7 +408,9 @@ public class SessionComponent extends BukkitComponent implements Runnable, Liste
         String type = getType(player.getClass());
         // Trigger the session
         for (PersistentSession session : getSessions(player)) {
-            session.load(new YAMLNodeConfigurationNode(getSessionConfiguration(type, UUIDUtil.toUniqueString(player), session.getClass())));
+            if(config.persistent) {
+                session.load(new YAMLNodeConfigurationNode(getSessionConfiguration(type, UUIDUtil.toUniqueString(player), session.getClass())));
+            }
             session.handleReconnect(event.getPlayer());
         }
     }
@@ -398,11 +426,16 @@ public class SessionComponent extends BukkitComponent implements Runnable, Liste
         String type = getType(player.getClass());
         for (PersistentSession session : getSessions(event.getPlayer())) {
             session.handleDisconnect();
-            session.save(new YAMLNodeConfigurationNode(getSessionConfiguration(type, UUIDUtil.toUniqueString(player), session.getClass())));
+            if(config.persistent) {
+                session.save(new YAMLNodeConfigurationNode(getSessionConfiguration(type, UUIDUtil.toUniqueString(player), session.getClass())));
+            }
         }
         YAMLProcessor proc = getUserConfiguration(type, UUIDUtil.toUniqueString(player), false);
         if (proc != null) {
             proc.save();
+        }
+        if(!config.persistent) {
+            removeSessions(event.getPlayer());
         }
     }
 

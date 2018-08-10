@@ -233,13 +233,6 @@ public class FunComponent extends BukkitComponent {
     }
 
     public class Commands {
-        @Command(aliases = {"ping"},
-                usage = "", desc = "A dummy command",
-                flags = "", min = 0, max = 0)
-        public void ping(CommandContext args, CommandSender sender) throws CommandException {
-            sender.sendMessage(ChatColor.YELLOW + "Pong!");
-        }
-
         @Command(aliases = {"pong"},
                 usage = "", desc = "A dummy command",
                 flags = "", min = 0, max = 0)
